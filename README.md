@@ -1,43 +1,53 @@
-# MelonLoader BepInEx IL2CPP Compatibility Shim
+# MelonCompat
 
-This project builds BepInEx 6 compatibility shims named `MelonLoader.dll`.
-The assembly name is intentional: MelonLoader mods reference an assembly named `MelonLoader`, so this shim uses that identity and exposes a practical MelonLoader 0.7.3 API facade.
+MelonCompat is a BepInEx 6 compatibility shim for running supported MelonLoader mods in Unity games.
 
-## Build
+It supports both Unity backends:
 
-```powershell
-dotnet build MelonLoader.BepInExCompat.csproj -c Release
-dotnet build MelonLoader.BepInExCompat.Mono.csproj -c Release
-dotnet build Installer/MelonCompatInstaller.csproj -c Release
-dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/installer
-dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ElectronInstaller/backend
-pushd ElectronInstaller
-npm install
-npm run build
-popd
-```
+- Mono games
+- IL2CPP games
 
-Output:
+It targets MelonLoader mod DLLs made for MelonLoader 0.5.7 through 0.7.3. This is a compatibility layer, not the full MelonLoader runtime, so some mods that depend on deeper MelonLoader internals may still need fixes.
+
+## For Players
+
+Download the release zip, extract it, and run:
 
 ```text
-bin/Release/net6.0/MelonLoader.dll              # IL2CPP shim
-bin/Mono/Release/net6.0/MelonLoader.dll         # Mono shim
-dist/installer/MelonCompatInstaller.exe         # self-contained Windows installer
-dist/electron/MelonCompat Installer 0.7.3.exe   # Electron GUI portable installer
+MelonCompat Installer 0.7.3.exe
 ```
 
-## Installer
+The installer scans Steam libraries for Unity games and shows each game's icon, platform, Unity backend, BepInEx status, and MelonLoader status.
 
-The Electron installer uses a neutral gray UI with the MelonCompat logo. It scans Steam libraries for Unity games, shows each game icon, platform, Unity backend, BepInEx status, and MelonLoader status.
+Basic flow:
 
-If BepInEx is missing, the GUI asks before downloading and extracting the matching BepInEx 6 Unity Mono or IL2CPP package. It then launches the game once, waits for the game to close, and installs the MelonCompat shim after BepInEx has had its first run.
+1. Select a Unity game.
+2. Click `Melon DLLs` if you want to choose specific MelonLoader mod DLLs.
+3. Click `Install`.
+4. If BepInEx is missing, the installer asks before downloading and installing the matching BepInEx 6 Mono or IL2CPP package.
+5. After installing BepInEx, it launches the game once. Close the game after it reaches the menu so the installer can continue.
+6. The installer then adds the MelonCompat shim and copies selected MelonLoader mod DLLs into `BepInEx/plugins/MelonLoaderMods`.
 
-If MelonLoader is detected, the GUI asks before removing it. When removal is accepted, DLLs from the MelonLoader `Mods` folder are migrated into `BepInEx/plugins/MelonLoaderMods` before the MelonLoader files are deleted.
+If MelonLoader is already installed, the installer asks before removing it. If you accept, DLLs from the old MelonLoader `Mods` folder are migrated into `BepInEx/plugins/MelonLoaderMods` before MelonLoader files are deleted.
 
-Manual CLI installs are still available through the backend installer:
+## What Gets Installed
+
+For the selected game, MelonCompat installs:
+
+```text
+BepInEx/plugins/MelonLoader.dll
+BepInEx/plugins/Mono.Cecil.dll
+BepInEx/plugins/MelonLoaderMods/*.dll
+```
+
+The `MelonLoader.dll` name is intentional. MelonLoader mods reference an assembly named `MelonLoader`, so the shim uses that identity while running under BepInEx.
+
+## Command Line
+
+The release zip also includes a CLI backend:
 
 ```powershell
-dist/installer/MelonCompatInstaller.exe --game "D:\Games\GameName\GameName.exe" --install-bepinex --run-game-before-shim --melon "C:\Mods\ExampleMelon.dll" --yes
+cli/MelonCompatInstaller.exe --game "D:\Games\GameName\GameName.exe" --install-bepinex --run-game-before-shim --melon "C:\Mods\ExampleMelon.dll" --yes
 ```
 
 Useful options:
@@ -53,29 +63,76 @@ Useful options:
 --dry-run                  Detect and print the plan without writing files.
 ```
 
-BepInEx packages are downloaded from BepInEx bleeding-edge builds because BepInEx 6 Unity Mono and IL2CPP packages are distributed there.
+## Compatibility
 
-The BepInEx console/log should show lines like:
+Supported MelonLoader mod range:
 
-```text
-Loaded MelonMod: Example Mod v1.0.0 by Author -> ExampleMod.dll
-```
+- MelonLoader 0.5.7
+- MelonLoader 0.6.x
+- MelonLoader 0.7.x through 0.7.3
 
-## Supported
+Supported Unity/BepInEx targets:
 
-- Best-effort MelonLoader 0.5.7-0.7.3 assembly/API facade with assembly identity `MelonLoader, Version=0.7.3.0`
-- BepInEx 6 Mono and BepInEx 6 IL2CPP backend-specific shim builds
-- `MelonInfo`, `MelonGame`, `MelonProcess`, priority, color, platform, version attributes
-- `MelonMod` / `MelonPlugin` discovery from DLLs in `BepInEx/plugins`
+- BepInEx 6 Mono
+- BepInEx 6 IL2CPP
+
+Implemented compatibility surface:
+
+- `MelonInfo`, `MelonGame`, `MelonProcess`, priority, color, platform, and version attributes
+- `MelonMod` and `MelonPlugin` discovery from DLLs in `BepInEx/plugins`
 - `OnEarlyInitializeMelon`, `OnInitializeMelon`, `OnApplicationStart`, `OnLateInitializeMelon`
 - Unity frame callbacks: `OnUpdate`, `OnFixedUpdate`, `OnLateUpdate`, `OnGUI`
 - Scene callbacks: `OnSceneWasLoaded`, `OnSceneWasInitialized`, `OnSceneWasUnloaded`
-- Basic managed `MelonCoroutines.Start` / `Stop` support for frame-driven enumerators
+- Basic managed `MelonCoroutines.Start` and `Stop`
 - BepInEx-backed `MelonLogger` output
 - Harmony `PatchAll` against loaded melon assemblies
 - Harmony patch target fixups for BepInEx IL2CPP interop assemblies that expose game types without the `Il2Cpp.` namespace
-- Minimal in-memory `MelonPreferences` / `MelonPrefs`
+- Minimal in-memory `MelonPreferences` and `MelonPrefs`
 
 ## Limits
 
-This is a compatibility shim, not the full MelonLoader runtime. It requires BepInEx 6; legacy BepInEx 5 Mono installs are detected but not used. Coroutine support is a managed frame-pumped scheduler and does not reproduce every Unity coroutine yield instruction. Mods that depend on deeper MelonLoader internals, native hook behavior, generated interop details, or exact loader lifecycle ordering may still need more compatibility work.
+MelonCompat is not a complete replacement for MelonLoader. Mods can still fail if they require exact MelonLoader lifecycle ordering, native hooks, generated interop details, internal MelonLoader classes, or behavior that is not implemented by this shim.
+
+Legacy BepInEx 5 installs are detected but not used. The installer expects BepInEx 6 for both Mono and IL2CPP games.
+
+## For Coders
+
+Build requirements:
+
+- .NET SDK 8 or newer
+- Node.js and npm
+- Windows for the packaged Electron installer
+
+Build everything:
+
+```powershell
+dotnet build MelonLoader.BepInExCompat.csproj -c Release
+dotnet build MelonLoader.BepInExCompat.Mono.csproj -c Release
+dotnet build Installer/MelonCompatInstaller.csproj -c Release
+dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/installer
+dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o ElectronInstaller/backend
+pushd ElectronInstaller
+npm install
+npm run build
+popd
+```
+
+Build outputs:
+
+```text
+bin/Release/net6.0/MelonLoader.dll              # IL2CPP shim
+bin/Mono/Release/net6.0/MelonLoader.dll         # Mono shim
+dist/installer/MelonCompatInstaller.exe         # CLI backend
+dist/electron/MelonCompat Installer 0.7.3.exe   # Electron GUI portable installer
+```
+
+Source layout:
+
+```text
+BepInExCompat/        Shared shim implementation
+MelonLoaderApi/       MelonLoader API facade types
+Installer/            CLI installer and install engine
+ElectronInstaller/    Electron GUI wrapper
+```
+
+BepInEx packages are downloaded from BepInEx bleeding-edge builds because BepInEx 6 Unity Mono and IL2CPP packages are distributed there.
