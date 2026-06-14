@@ -1,0 +1,17 @@
+bin/
+obj/
+dist/
+.scratch/
+
+Installer/bin/
+Installer/obj/
+
+ElectronInstaller/backend/
+ElectronInstaller/node_modules/
+ElectronInstaller/dist/
+
+*.user
+*.suo
+*.pdb
+*.nupkg
+*.zip
