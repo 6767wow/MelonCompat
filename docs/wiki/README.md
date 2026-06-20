@@ -8,16 +8,22 @@ GitHub returned `Repository not found` for `6767wow/MelonCompat.wiki.git`, so th
 
 - [Home](Home.md)
 - [Project Journey](Project-Journey.md)
+- [Full Bug History](Full-Bug-History.md)
+- [Runtime Bug Deep Dives](Runtime-Bug-Deep-Dives.md)
+- [Installer and Build Bug History](Installer-and-Build-Bug-History.md)
 - [Architecture](Architecture.md)
 - [RoseMod Standalone Framework](RoseMod-Standalone-Framework.md)
 - [MelonLoader Compatibility](MelonLoader-Compatibility.md)
 - [BepInEx Compatibility](BepInEx-Compatibility.md)
 - [Installer and Release](Installer-and-Release.md)
+- [Source Code Walkthrough](Source-Code-Walkthrough.md)
+- [Built Version Walkthrough](Built-Version-Walkthrough.md)
 - [Build Guide](Build-Guide.md)
 - [Error Catalog](Error-Catalog.md)
 - [Troubleshooting](Troubleshooting.md)
 - [Runtime Logs](Runtime-Logs.md)
 - [Compatibility Testing](Compatibility-Testing.md)
+- [Compatibility Acceptance Checks](Compatibility-Acceptance-Checks.md)
 
 ## What This Covers
 
@@ -26,3 +32,4 @@ GitHub returned `Repository not found` for `6767wow/MelonCompat.wiki.git`, so th
 - MelonLoader 0.5.7 through 0.7.3 facade behavior.
 - BepInEx facade behavior, patchers, logging, config, and plugin activation.
 - Known runtime errors, crashes, build failures, installer problems, and the fixes used so far.
+- Step-by-step source layout and built release layout.

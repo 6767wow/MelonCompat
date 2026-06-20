@@ -21,16 +21,22 @@ Target compatibility:
 ## Important Pages
 
 - [[Project Journey]]
+- [[Full Bug History]]
+- [[Runtime Bug Deep Dives]]
+- [[Installer and Build Bug History]]
 - [[Architecture]]
 - [[RoseMod Standalone Framework]]
 - [[MelonLoader Compatibility]]
 - [[BepInEx Compatibility]]
 - [[Installer and Release]]
+- [[Source Code Walkthrough]]
+- [[Built Version Walkthrough]]
 - [[Build Guide]]
 - [[Error Catalog]]
 - [[Troubleshooting]]
 - [[Runtime Logs]]
 - [[Compatibility Testing]]
+- [[Compatibility Acceptance Checks]]
 
 ## Project Status
 
@@ -46,3 +52,4 @@ As of the RoseMod rename release, the repo contains:
 
 RoseMod is experimental. It is a real loader with its own bootstrap and compatibility layers, but it is not a byte-for-byte reimplementation of MelonLoader or BepInEx. Some mods can still require extra facade coverage, exact lifecycle behavior, native hook behavior, or game-specific compatibility patches.
 
+For the full bug history, start with [[Full Bug History]], then use [[Runtime Bug Deep Dives]] and [[Installer and Build Bug History]] for the expanded failure explanations.
