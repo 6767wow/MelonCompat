@@ -16,3 +16,4 @@ RoseV/IDE/src-tauri/target/
 *.user
 *.suo
 tmp/
+__pycache__/

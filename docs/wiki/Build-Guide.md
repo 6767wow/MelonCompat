@@ -7,6 +7,7 @@ This page documents the build process used for the RoseMod rename release.
 - Windows.
 - .NET SDK 8 or newer.
 - Visual Studio C++ build tools.
+- Python 3.10+ and PyQt6 for RoseV IDE.
 - Node.js and npm.
 - Rust/Cargo for Tauri.
 - A valid Unity reference set for building the MelonLoader facade.
@@ -60,6 +61,25 @@ Expected output:
 TauriInstaller/src-tauri/target/release/meloncompat-installer-tauri.exe
 ```
 
+## RoseV IDE
+
+RoseV IDE is a native PyQt app, not a Tauri/web app.
+
+```powershell
+pushd RoseV/IDE
+python -m pip install -r requirements.txt
+python rosev_ide.py
+popd
+```
+
+To build a standalone executable:
+
+```powershell
+pushd RoseV/IDE
+.\build_pyqt_exe.ps1
+popd
+```
+
 ## Special Build Notes
 
 ### Stale Candidate Assembly References
@@ -107,4 +127,3 @@ CS2012: Cannot open ... MelonCompatInstaller.dll for writing
 ```
 
 Run those publishes one at a time.
-

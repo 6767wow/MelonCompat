@@ -172,6 +172,7 @@ Legacy BepInEx 5 installs are detected but not used. The installer expects BepIn
 Build requirements:
 
 - .NET SDK 8 or newer
+- Python 3.10+ with PyQt6 for RoseV IDE
 - Node.js and npm
 - Rust/Cargo
 - Windows for the packaged Tauri installer
@@ -192,6 +193,9 @@ dotnet build Installer/MelonCompatInstaller.csproj -c Release
 dotnet run --project CompatVerifier/CompatVerifier.csproj -c Release
 dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/installer
 dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o TauriInstaller/backend
+pushd RoseV/IDE
+python -m pip install -r requirements.txt
+popd
 pushd TauriInstaller
 npm install
 npm run build
@@ -220,6 +224,7 @@ Installer/            CLI installer and install engine
 TauriInstaller/       Tauri GUI wrapper
 Native/               C++ RoseMod native bootstrap and WinHTTP proxy
 RoseMod/              Standalone RoseMod source
+RoseV/IDE/            Native PyQt RoseV editor and compiler workbench
 CompatVerifier/       Cecil-based facade coverage and required-member verifier
 ```
 

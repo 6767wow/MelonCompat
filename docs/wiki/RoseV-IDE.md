@@ -1,6 +1,6 @@
 # RoseV IDE
 
-RoseV IDE is a VS Code-style editor for `.rosev` files.
+RoseV IDE is a native PyQt editor for `.rosev` files.
 
 It is separate from the MelonCompat installer. The installer installs loaders into games. The IDE writes RoseV source and runs the RoseV compiler.
 
@@ -16,21 +16,23 @@ The IDE is designed for:
 
 - Fast beginner onboarding.
 - Editing `.rosev` files.
+- Native code scrolling with line numbers.
 - Opening RoseV workspaces.
 - Seeing a file outline.
 - Inserting common snippets.
 - Inserting full C# statement blocks and class member blocks.
 - Declaring native C/C++/ASM companion bridges.
+- Finding text in the current file.
+- Formatting RoseV indentation.
 - Viewing diagnostics.
 - Running the native RoseV compiler.
 - Viewing generated C#.
 
 ## Layout
 
-The IDE uses a familiar workbench layout:
+The IDE uses a native desktop workbench layout:
 
-- Activity bar on the far left.
-- Explorer/sidebar next to it.
+- RoseMod profile card and file/code/help tabs on the left.
 - Main editor in the center.
 - Diagnostics/output/generated-code panel at the bottom.
 - Command palette through `Ctrl+Shift+P`.
@@ -43,6 +45,7 @@ Buttons:
 - `Open`: open a `.rosev` file.
 - `Folder`: open a workspace folder.
 - `Sample`: load a complete sample.
+- `Format`: normalize indentation.
 - `Save`: save the current file.
 - `Compile`: run `RoseV.exe` and generate C#.
 - `Commands`: open the command palette.
@@ -58,9 +61,15 @@ Keyboard:
 
 ```text
 Ctrl+S        Save
+Ctrl+O        Open
+Ctrl+Enter    Compile
+Ctrl+Shift+F  Format document
 Ctrl+Shift+P  Command palette
+Ctrl+F        Find in file
+Alt+Z         Toggle word wrap
 Esc           Close command palette
-Tab           Insert two spaces
+Tab           Indent selection or insert two spaces
+Shift+Tab     Unindent selection
 ```
 
 ## Diagnostics
@@ -89,30 +98,34 @@ If the file is unsaved, the IDE writes a temp `.rosev` source before compile.
 
 The generated C# appears in the bottom `Generated` tab.
 
-## Browser Preview
+## PyQt Run
 
-The IDE frontend can be previewed without Tauri:
+Install PyQt once:
 
-```text
-npm run preview
-```
-
-Browser preview can edit and validate syntax, but cannot run `RoseV.exe`.
-
-The desktop Tauri build is required for open/save/compile integration.
-
-## Tauri Build
-
-```text
+```powershell
 cd RoseV/IDE
-npm install
-npm run build
+python -m pip install -r requirements.txt
 ```
 
-During development:
+Run the IDE:
+
+```powershell
+python rosev_ide.py
+```
+
+Or use the Windows launcher:
 
 ```text
-npm run dev
+RoseV/IDE/run_rosev_ide.bat
+```
+
+## PyInstaller Build
+
+To build a standalone Windows executable:
+
+```powershell
+cd RoseV/IDE
+.\build_pyqt_exe.ps1
 ```
 
 ## Native Compiler Requirement
@@ -135,7 +148,6 @@ The IDE is intentionally lightweight right now.
 
 Missing features that can be added later:
 
-- Rich syntax highlighting.
 - IntelliSense-style completions.
 - Automatic DLL packaging.
 - Project templates.
