@@ -1,0 +1,83 @@
+rosev "RoseV Everything Sample" id "com.rosemod.samples.ide.everything" version "1.0.0" author "RoseMod"
+namespace RoseMod.Samples.IDE
+class RoseVIDESample
+
+import csharp
+import unity.core
+import unity.ai
+import unity.scene
+import unity.ui
+import melonloader.core
+import melonloader.utils
+import bepinex.core
+import bepinex.config
+import bepinex.logging
+import rosemod
+import static System.Math
+
+use unity
+use melonloader
+use bepinex
+use rosemod
+
+native c "Native/RoseVNativeSample.c" as RoseVNativeSample
+
+setting showHud bool true "Show a tiny Unity IMGUI label"
+setting tickRate int 300 "Frames between update messages"
+field updateCount int = 0
+field score double = 0.0
+
+members {
+  private int csharpOwnedCounter;
+
+  private void FullCSharpHelper()
+  {
+    Log.Info($"Full C# is running inside RoseV. Counter={csharpOwnedCounter}, Score={Round(score)}");
+  }
+}
+
+make announce {
+  say "This is a RoseV function"
+}
+
+make optionalNativePing {
+  native call RoseVNativeSample.RoseVNativePing
+}
+
+when load {
+  say "{mod} {version} loaded on {loader}"
+  say "Backend is {backend}"
+  call announce
+  csharp {
+    csharpOwnedCounter++;
+    FullCSharpHelper();
+  }
+}
+
+when scene_loaded scene {
+  say "Scene loaded: {scene} ({buildIndex})"
+}
+
+when update {
+  add updateCount 1
+  add score 0.25
+  if updateCount atleast 1 {
+    call announce
+  }
+
+  repeat 2 {
+    csharp "csharpOwnedCounter++;"
+  }
+
+  every 300 {
+    say "Update is alive"
+  }
+
+  key F8 {
+    warn "F8 pressed"
+  }
+}
+
+when gui {
+  unity "if (setting_showHud != null && setting_showHud.Value) UnityEngine.GUI.Label(new UnityEngine.Rect(20, 20, 520, 24), \"RoseV IDE sample running on \" + Context.Loader);"
+}

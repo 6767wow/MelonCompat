@@ -1,0 +1,15 @@
+{
+  "name": "rosev-ide",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:frontend": "node scripts/build-frontend.js",
+    "build": "tauri build --no-bundle",
+    "dev": "tauri dev",
+    "preview": "node scripts/build-frontend.js && node scripts/preview.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.2"
+  }
+}

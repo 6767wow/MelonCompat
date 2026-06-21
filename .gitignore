@@ -10,5 +10,9 @@ TauriInstaller/node_modules/
 TauriInstaller/backend/
 TauriInstaller/dist/
 TauriInstaller/src-tauri/target/
+RoseV/IDE/node_modules/
+RoseV/IDE/dist/
+RoseV/IDE/src-tauri/target/
 *.user
 *.suo
+tmp/

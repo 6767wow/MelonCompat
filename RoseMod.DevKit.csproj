@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>RoseMod.DevKit</AssemblyName>
+    <RootNamespace>RoseMod.DevKit</RootNamespace>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <Description>Universal mod development kit for writing one mod against RoseMod, MelonLoader, and BepInEx style entrypoints.</Description>
+    <Authors>jayde; OpenAI Codex</Authors>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputPath>bin\RoseMod\DevKit\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\RoseMod\DevKit\$(Configuration)\</IntermediateOutputPath>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="RoseMod\DevKit\**\*.cs" />
+  </ItemGroup>
+
+</Project>

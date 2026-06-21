@@ -1,0 +1,17 @@
+[package]
+name = "rosev-ide"
+version = "0.1.0"
+description = "RoseV IDE for writing RoseV Unity mods."
+authors = ["jayde", "OpenAI Codex"]
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2.5.1", features = [] }
+
+[dependencies]
+rfd = "0.15.4"
+serde = { version = "1.0", features = ["derive"] }
+tauri = { version = "2.9.1", features = [] }
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

@@ -1,4 +1,4 @@
-# MelonCompat & RoseMod
+# MelonCompat
 
 <p align="center">
   <img src="docs/assets/meloncompat-logo.png" alt="MelonCompat logo" width="120" />
