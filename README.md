@@ -143,3 +143,5 @@ MelonCompat targets MelonLoader mods built for MelonLoader 0.5.7 through 0.7.3 a
 ## Documentation
 
 The trimmed wiki source starts at [`docs/wiki/Home.md`](docs/wiki/Home.md).
+
+For step-by-step Visual Studio setup, local NuGet source setup, wrapper classes, lifecycle callbacks, and troubleshooting, read [`docs/wiki/DevKit-Setup-and-Usage.md`](docs/wiki/DevKit-Setup-and-Usage.md).

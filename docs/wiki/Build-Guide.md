@@ -8,6 +8,8 @@
 
 ## DevKit Package
 
+For Visual Studio setup and consumer-project usage, see [RoseMod.DevKit Setup and Usage](DevKit-Setup-and-Usage.md).
+
 ```powershell
 dotnet build RoseMod.DevKit.csproj -c Release
 dotnet pack RoseMod.DevKit.csproj -c Release

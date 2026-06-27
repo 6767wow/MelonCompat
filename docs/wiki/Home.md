@@ -16,4 +16,5 @@ MelonCompat has two C# surfaces:
 
 ## Pages
 
+- [RoseMod.DevKit Setup and Usage](DevKit-Setup-and-Usage.md)
 - [Build Guide](Build-Guide.md)

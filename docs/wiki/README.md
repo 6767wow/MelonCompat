@@ -7,3 +7,7 @@ This wiki source now documents the C# package shape:
 - The old RoseV language, sample mods, native bootstrap, and installer payload are no longer part of the repo.
 
 Start with [Home](Home.md).
+
+Main setup guide:
+
+- [RoseMod.DevKit Setup and Usage](DevKit-Setup-and-Usage.md)
