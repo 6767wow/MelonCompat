@@ -1,0 +1,7 @@
+<Project>
+  <ItemGroup Condition="'$(RoseModDevKitDisableLoaderAdapters)' != 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)RoseMod.DevKit.LoaderAdapters.cs"
+             Link="RoseMod.DevKit.LoaderAdapters.cs"
+             Visible="false" />
+  </ItemGroup>
+</Project>

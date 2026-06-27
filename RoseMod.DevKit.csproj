@@ -4,11 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RoseMod.DevKit</AssemblyName>
     <RootNamespace>RoseMod.DevKit</RootNamespace>
-    <Version>0.1.0</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <FileVersion>0.1.0.0</FileVersion>
-    <Description>Universal mod development kit for writing one mod against RoseMod, MelonLoader, and BepInEx style entrypoints.</Description>
+    <Version>0.2.1</Version>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <FileVersion>0.2.1.0</FileVersion>
+    <PackageId>RoseMod.DevKit</PackageId>
+    <Title>RoseMod DevKit</Title>
+    <Description>C# SDK for writing one Unity mod core with MelonLoader and BepInEx entrypoints.</Description>
     <Authors>jayde; OpenAI Codex</Authors>
+    <PackageTags>Unity;modding;MelonLoader;BepInEx;RoseMod</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/6767wow/MelonCompat-and-RoseMod</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/6767wow/MelonCompat-and-RoseMod</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -19,6 +27,12 @@
 
   <ItemGroup>
     <Compile Include="RoseMod\DevKit\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <None Include="buildTransitive\RoseMod.DevKit.targets" Pack="true" PackagePath="buildTransitive\RoseMod.DevKit.targets" />
+    <None Include="buildTransitive\RoseMod.DevKit.LoaderAdapters.cs" Pack="true" PackagePath="buildTransitive\RoseMod.DevKit.LoaderAdapters.cs" />
   </ItemGroup>
 
 </Project>

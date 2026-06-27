@@ -1,58 +1,19 @@
 # MelonCompat Wiki
 
-MelonCompat is a Unity mod-loader compatibility project. It started as a BepInEx plugin that lets MelonLoader mod DLLs load from BepInEx, then grew into RoseMod, an optional standalone framework that tries to load both MelonLoader-style mods and BepInEx-style plugins from one install.
+MelonCompat has two C# surfaces:
 
-This wiki documents the full journey, the architecture, the install layout, the build/release process, and the major errors that happened while building the framework.
+- `RoseMod.DevKit`: a packable C# SDK for one shared mod core with MelonLoader and BepInEx entrypoints.
+- `MelonLoader.BepInExCompat`: a BepInEx 6 shim that exposes a `MelonLoader.dll` facade for supported MelonLoader mods.
 
 ## Current Scope
 
-MelonCompat has two install modes:
+- C# only.
+- No custom RoseV language.
+- No bundled demo mod.
+- No native C++ bootstrap or installer payload.
+- BepInEx 6 Mono and IL2CPP shim projects remain.
+- MelonLoader 0.5.7 through 0.7.3 facade types remain.
 
-- **MelonCompat shim**: runs under BepInEx 6 and exposes a `MelonLoader.dll` facade so supported MelonLoader mods can be loaded from `BepInEx/plugins/MelonLoaderMods`.
-- **RoseMod**: optional standalone framework installed by MelonCompat. It uses its own native `winhttp.dll` bootstrap, installs to `RoseMod/`, and tries to load both MelonLoader mods and BepInEx plugins without depending on BepInEx at runtime.
+## Pages
 
-Target compatibility:
-
-- Unity Mono games.
-- Unity IL2CPP games.
-- MelonLoader mods built for MelonLoader 0.5.7 through 0.7.3.
-- BepInEx-style plugins through RoseMod's facade assemblies.
-
-## Important Pages
-
-- [[Project Journey]]
-- [[Full Bug History]]
-- [[Runtime Bug Deep Dives]]
-- [[Installer and Build Bug History]]
-- [[Architecture]]
-- [[RoseMod Standalone Framework]]
-- [[RoseV Language]]
-- [[RoseV IDE]]
-- [[RoseV Build Flow]]
-- [[MelonLoader Compatibility]]
-- [[BepInEx Compatibility]]
-- [[Installer and Release]]
-- [[Source Code Walkthrough]]
-- [[Built Version Walkthrough]]
-- [[Build Guide]]
-- [[Error Catalog]]
-- [[Troubleshooting]]
-- [[Runtime Logs]]
-- [[Compatibility Testing]]
-- [[Compatibility Acceptance Checks]]
-
-## Project Status
-
-As of the RoseMod rename release, the repo contains:
-
-- `BepInExCompat/`: shared BepInEx shim code.
-- `MelonLoaderApi/`: MelonLoader public API facade.
-- `RoseMod/`: standalone RoseMod managed runtime and facades.
-- `Native/RoseMod.Native/`: C++ WinHTTP bootstrap and native host.
-- `Installer/`: CLI backend and embedded payload.
-- `TauriInstaller/`: GUI installer.
-- `CompatVerifier/`: Cecil-based API surface verifier.
-
-RoseMod is experimental. It is a real loader with its own bootstrap and compatibility layers, but it is not a byte-for-byte reimplementation of MelonLoader or BepInEx. Some mods can still require extra facade coverage, exact lifecycle behavior, native hook behavior, or game-specific compatibility patches.
-
-For the full bug history, start with [[Full Bug History]], then use [[Runtime Bug Deep Dives]] and [[Installer and Build Bug History]] for the expanded failure explanations.
+- [Build Guide](Build-Guide.md)

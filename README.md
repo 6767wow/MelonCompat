@@ -1,234 +1,145 @@
-# MelonCompat
+# MelonCompat and RoseMod.DevKit
 
-<p align="center">
-  <img src="docs/assets/meloncompat-logo.png" alt="MelonCompat logo" width="120" />
-  <img src="docs/assets/rosemod-logo.png" alt="RoseMod logo" width="120" />
-</p>
+MelonCompat is a C# compatibility shim for running supported MelonLoader mods under BepInEx 6.
 
-MelonCompat is a BepInEx 6 compatibility shim for running supported MelonLoader mods in Unity games.
+RoseMod.DevKit is the C# package for writing one shared Unity mod core and calling it from MelonLoader or BepInEx entrypoints. RoseMod is no longer a custom language, bundled sample mod, native bootstrap, or installer payload.
 
-It supports both Unity backends:
+## Projects
 
-- Mono games
-- IL2CPP games
+- `RoseMod.DevKit.csproj`: packable C# SDK for shared mod lifecycle, logging, config, metadata, and loader detection.
+- `MelonLoader.BepInExCompat.csproj`: IL2CPP BepInEx 6 shim that exposes a `MelonLoader.dll` facade.
+- `MelonLoader.BepInExCompat.Mono.csproj`: Mono BepInEx 6 shim that exposes a `MelonLoader.dll` facade.
+- `RoseMod.BepInEx.*.csproj`: C# BepInEx facade assemblies used by the compatibility surface.
+- `RoseMod.MelonLoader.csproj`: C# MelonLoader facade assembly used by the compatibility surface.
+- `CompatVerifier/`: Cecil-based verifier for facade coverage.
 
-It targets MelonLoader mod DLLs made for MelonLoader 0.5.7 through 0.7.3. This is a compatibility layer, not the full MelonLoader runtime, so some mods that depend on deeper MelonLoader internals may still need fixes.
+## C# Package
 
-## Documentation
-
-The full project wiki source is checked into [`docs/wiki/Home.md`](docs/wiki/Home.md). It includes the RoseMod journey, architecture notes, installer behavior, build guide, compatibility testing checklist, runtime log guide, and a detailed [`Error Catalog`](docs/wiki/Error-Catalog.md) covering the major crashes, warnings, facade failures, interop problems, and build issues found while making MelonCompat and RoseMod.
-
-## For Players
-
-Download the release zip, extract it, and run:
-
-```text
-MelonCompat-RoseMod-<version>/MelonCompat Installer.exe
-```
-
-The installer scans Steam libraries for Unity games and shows each game's icon, platform, Unity backend, BepInEx status, and MelonLoader status.
-
-The installer has two tabs:
-
-- `MelonCompat`: the normal BepInEx-powered compatibility install.
-- `RoseMod`: the optional standalone RoseMod install.
-
-Use `Diagnostics` before installing if a game has been crashing or a mod is not loading. It checks the selected game, backend detection, installed loader state, and the embedded MelonCompat/RoseMod payload without changing files.
-
-Basic flow:
-
-1. Select a Unity game.
-2. Click `Melon DLLs` if you want to choose specific MelonLoader mod DLLs.
-3. Click `Install`.
-4. If BepInEx is missing, the installer asks before downloading and installing the matching BepInEx 6 Mono or IL2CPP package.
-5. After installing BepInEx, it launches the game once. Close the game after it reaches the menu so the installer can continue.
-6. The installer then adds the MelonCompat shim and copies selected MelonLoader mod DLLs into `BepInEx/plugins/MelonLoaderMods`.
-
-If MelonLoader is already installed, the installer asks before removing it. If you accept, DLLs from the old MelonLoader `Mods` folder are migrated into `BepInEx/plugins/MelonLoaderMods` before MelonLoader files are deleted.
-
-## RoseMod
-
-RoseMod is the optional standalone loader built into MelonCompat. It now installs its own C++ `winhttp.dll` bootstrap and does not require BepInEx or Doorstop at runtime. It is meant to provide one downloadable system for both supported Unity backends:
-
-- Mono games
-- IL2CPP games
-
-It can load:
-
-- MelonLoader-style mods built for MelonLoader 0.5.7 through 0.7.3
-- BepInEx-style plugins through included BepInEx API facades
-
-- MelonLoader-style console/logging
-- MelonLoader mod loading through the MelonCompat `MelonLoader.dll` facade
-- BepInEx-style plugin loading through RoseMod's BepInEx API facades
-- Shared folders for both mod styles
-
-RoseMod installs to:
-
-```text
-RoseMod/Core
-RoseMod/MelonMods
-RoseMod/BepInExPlugins
-RoseMod/Patchers
-RoseMod/interop
-RoseMod/Il2CppAssemblies
-RoseMod/UserData
-RoseMod/UserLibs
-RoseMod/Logs
-```
-
-Use `RoseMod/MelonMods` for MelonLoader-style mods, `RoseMod/BepInExPlugins` for BepInEx-style plugins, and `RoseMod/Patchers` for BepInEx preloader-style patchers. For older BepInEx 5 mods/tools that look for `BepInEx/patchers`, RoseMod creates a compatibility view that points back to `RoseMod/Patchers` when no real BepInEx install is present.
-
-When RoseMod is installed, the installer writes a native C++ `winhttp.dll` proxy at the game root. That proxy forwards WinHTTP calls to the real Windows `winhttp.dll`, detects the Unity backend, writes `RoseMod/Logs/RoseMod.native.log`, then starts the managed compatibility host only because MelonLoader and BepInEx mod DLLs are managed .NET assemblies. For IL2CPP games it also installs the flat CoreCLR runtime files needed by the native host. Existing bootstrap files are backed up under `RoseMod/Backups/<timestamp>` before they are replaced.
-
-Native startup logs are written to `RoseMod/Logs/RoseMod.native.log`. Managed loader logs are written to `RoseMod/Logs/RoseMod.log`. The runtime uses `ROSEMOD_*` environment variables. A few old `MELONCOMPAT_*` aliases are still accepted for debugging compatibility.
-
-For IL2CPP games, RoseMod indexes `RoseMod/interop` and `RoseMod/Il2CppAssemblies` for generated Unity/game interop assemblies. Mods that reference `UnityEngine.CoreModule` or `Assembly-CSharp` need those generated interop DLLs available in one of those folders.
-
-If the selected game already has generated BepInEx interop, the RoseMod installer copies it into `RoseMod/interop` during install so the running framework does not depend on the installed BepInEx folder. If BepInEx is installed, the RoseMod tab asks whether to remove it after RoseMod installs. Choosing removal moves the `BepInEx` folder into `RoseMod/Backups/<timestamp>/BepInEx`.
-
-Current status: RoseMod is experimental but wired as a real loader. It can discover and load both MelonLoader-style DLLs and BepInEx-style plugin DLLs through the included compatibility facades. The included verifier now checks the public MelonLoader 0.7.3 and BepInEx.Core public type surface against the RoseMod facades, plus real mod DLL references when supplied.
-
-BepInEx patcher support is included for runtime/Harmony-style patchers, BepInEx 5 static patchers with `TargetDLLs` / `Initialize` / `Patch(AssemblyDefinition)`, and common Cecil `[TargetAssembly]` / `[TargetType]` patch methods. Cecil-patched outputs are written to `RoseMod/PatchedAssemblies`; if Unity already loaded the target assembly, RoseMod logs that the rewrite could not replace the live assembly in that launch.
-
-For BepInEx 5 Mono mods that rely on plugin-type serialization, RoseMod also installs a managed Unity clone fallback before plugin activation. It patches Unity clone/instantiate paths and copies serialized fields for plugin `MonoBehaviour`s loaded from `RoseMod/BepInExPlugins` or `RoseMod/MelonMods`, covering mods that still fail the MTM101-style serialization test even after `FixPluginTypesSerialization` initializes.
-
-RoseMod publishes MelonLoader-style update and scene callbacks through Unity scene events by default. If Unity frame events are unavailable, it falls back to managed Harmony callback pumping. The direct injected `MonoBehaviour` pump is opt-in for debugging with `ROSEMOD_ENABLE_INJECTED_EVENT_PUMP=1` or `RoseMod/UserData/enable-injected-event-pump.txt`.
-
-RoseMod has a small built-in Harmony crash guard list for known Unity 6 IL2CPP native trampoline crashes. For debugging only, set `ROSEMOD_DISABLE_BUILTIN_PATCH_GUARDS=1` or create `RoseMod/UserData/disable-built-in-patch-guards.txt` to force guarded patches back on.
-
-## What Gets Installed
-
-For the selected game, MelonCompat installs:
-
-```text
-BepInEx/plugins/MelonLoader.dll
-BepInEx/plugins/Mono.Cecil.dll
-BepInEx/plugins/MelonLoaderMods/*.dll
-```
-
-The `MelonLoader.dll` name is intentional. MelonLoader mods reference an assembly named `MelonLoader`, so the shim uses that identity while running under BepInEx.
-
-## Command Line
-
-The release zip also includes a CLI backend:
+Build the DevKit package:
 
 ```powershell
-cli/MelonCompatInstaller.exe --game "D:\Games\GameName\GameName.exe" --install-bepinex --run-game-before-shim --melon "C:\Mods\ExampleMelon.dll" --yes
+dotnet pack RoseMod.DevKit.csproj -c Release
 ```
 
-Useful options:
+The package contains:
 
-```text
---backend <auto|mono|il2cpp>
---install-rosemod         Install the optional standalone RoseMod loader.
---install-bepinex          Download and install BepInEx 6 when missing for the MelonCompat shim.
---bepinex-zip <zip>        Install BepInEx 6 from a local zip, or use the archive as RoseMod's support source.
---run-game-before-shim     Launch the game once before installing the shim after a BepInEx install.
---remove-bepinex           With --install-rosemod, move an existing BepInEx folder into RoseMod/Backups after install.
---remove-melonloader       Remove an existing MelonLoader install.
---migrate-melon-mods       Migrate DLLs from MelonLoader/Mods before removal.
---force-payload            Replace existing BepInEx/plugins/MelonLoader.dll.
---doctor                   Validate the selected game and embedded payload without installing.
---dry-run                  Detect and print the plan without writing files.
+- `RoseMod.DevKit.dll`
+- transitive C# adapter source for MelonLoader and BepInEx wrappers
+- shared lifecycle helpers through `RoseModEntry<TMod>` and `RoseModHost`
+
+Consumer projects enable wrapper source with project-wide build constants:
+
+```xml
+<PropertyGroup>
+  <DefineConstants>$(DefineConstants);ROSEMOD_MELONLOADER</DefineConstants>
+</PropertyGroup>
 ```
 
-## Compatibility
+Use `ROSEMOD_BEPINEX_MONO`, `ROSEMOD_BEPINEX_IL2CPP`, and `ROSEMOD_UNITY_REFERENCES` the same way for BepInEx builds. Do not rely on file-local `#define` lines for these symbols; the adapter source is compiled as a separate file.
 
-Supported MelonLoader mod range:
+## Shared Mod Core
 
-- MelonLoader 0.5.7
-- MelonLoader 0.6.x
-- MelonLoader 0.7.x through 0.7.3
+```csharp
+using RoseMod.DevKit;
 
-Supported Unity/BepInEx targets:
+[RoseModMetadata("com.example.coolmod", "Cool Mod", "1.0.0", "You")]
+public sealed class CoolMod : RoseModBase
+{
+    public override void OnLoad()
+    {
+        Log.Info($"{Context.Metadata} loaded through {Context.Loader}.");
+    }
 
-- BepInEx 6 Mono
-- BepInEx 6 IL2CPP
+    public override void OnUpdate()
+    {
+        // Shared update logic for MelonLoader and BepInEx wrappers.
+    }
+}
+```
 
-Implemented compatibility surface:
+## MelonLoader Wrapper
 
-- `MelonInfo`, `MelonGame`, `MelonProcess`, priority, color, platform, and version attributes
-- `MelonMod` and `MelonPlugin` discovery from DLLs in `BepInEx/plugins`
-- `OnEarlyInitializeMelon`, `OnInitializeMelon`, `OnApplicationStart`, `OnLateInitializeMelon`
-- Unity frame callbacks: `OnUpdate`, `OnFixedUpdate`, `OnLateUpdate`, `OnGUI`
-- Scene callbacks: `OnSceneWasLoaded`, `OnSceneWasInitialized`, `OnSceneWasUnloaded`
-- Basic managed `MelonCoroutines.Start` and `Stop`
-- BepInEx-backed `MelonLogger` output
-- Harmony `PatchAll` against loaded melon assemblies
-- Harmony patch target fixups for BepInEx IL2CPP interop assemblies that expose game types without the `Il2Cpp.` namespace
-- Minimal in-memory `MelonPreferences` and `MelonPrefs`
-- Legacy `Harmony.*` facade classes for older MelonLoader 0.5.7-era mods
-- BepInEx logging, config, plugin metadata, and Unity base-plugin API facades for RoseMod
+```csharp
+using MelonLoader;
+using RoseMod.DevKit;
 
-## Limits
+[assembly: MelonInfo(typeof(CoolMelonEntry), "Cool Mod", "1.0.0", "You")]
+[assembly: MelonGame(null, null)]
 
-MelonCompat is not a complete replacement for MelonLoader. Mods can still fail if they require exact MelonLoader lifecycle ordering, native hooks, generated interop details, internal MelonLoader classes, or native IL2CPP detours that crash in a specific Unity/game build.
+public sealed class CoolMelonEntry : RoseMelonMod<CoolMod>
+{
+}
+```
 
-Legacy BepInEx 5 installs are detected but not used. The installer expects BepInEx 6 for both Mono and IL2CPP games.
+## BepInEx Mono Wrapper
 
-## For Coders
+```csharp
+using BepInEx;
+using RoseMod.DevKit;
 
-Build requirements:
+[BepInPlugin("com.example.coolmod", "Cool Mod", "1.0.0")]
+public sealed class CoolBepInExMonoEntry : RoseBepInExMonoPlugin<CoolMod>
+{
+}
+```
 
-- .NET SDK 8 or newer
-- Python 3.10+ with PyQt6 for RoseV IDE
-- Node.js and npm
-- Rust/Cargo
-- Windows for the packaged Tauri installer
+## BepInEx IL2CPP Wrapper
 
-Build everything:
+```csharp
+using BepInEx;
+using RoseMod.DevKit;
+
+[BepInPlugin("com.example.coolmod", "Cool Mod", "1.0.0")]
+public sealed class CoolBepInExIl2CppEntry : RoseBepInExIl2CppPlugin<CoolMod>
+{
+}
+```
+
+For IL2CPP frame and scene callbacks, add a concrete Unity behaviour in the mod project and call `RoseModEntry<CoolMod>.Update()`, `SceneLoaded(...)`, and the other lifecycle helpers from that behaviour.
+
+## MelonCompat Shim
+
+Build the BepInEx-powered MelonLoader facade:
 
 ```powershell
+dotnet build MelonLoader.BepInExCompat.csproj -c Release
+dotnet build MelonLoader.BepInExCompat.Mono.csproj -c Release
+```
+
+Install the matching output as `BepInEx/plugins/MelonLoader.dll`, then place MelonLoader mods under:
+
+```text
+BepInEx/plugins/MelonLoaderMods
+```
+
+The `MelonLoader.dll` assembly name is intentional because MelonLoader mods reference that assembly identity.
+
+## Build
+
+Managed build commands:
+
+```powershell
+dotnet build RoseMod.DevKit.csproj -c Release
+dotnet pack RoseMod.DevKit.csproj -c Release
 dotnet build MelonLoader.BepInExCompat.csproj -c Release
 dotnet build MelonLoader.BepInExCompat.Mono.csproj -c Release
 dotnet build RoseMod.BepInEx.Core.csproj -c Release
 dotnet build RoseMod.BepInEx.Unity.Mono.csproj -c Release
 dotnet build RoseMod.BepInEx.Unity.IL2CPP.csproj -c Release
 dotnet build RoseMod.MelonLoader.csproj -c Release
-dotnet build RoseMod.Core.csproj -c Release
-cmd /c "call ""C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"" >nul && msbuild Native\RoseMod.Native\RoseMod.Native.vcxproj /p:Configuration=Release /p:Platform=x64"
 dotnet build CompatVerifier/CompatVerifier.csproj -c Release
-dotnet build Installer/MelonCompatInstaller.csproj -c Release
-dotnet run --project CompatVerifier/CompatVerifier.csproj -c Release
-dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o dist/installer
-dotnet publish Installer/MelonCompatInstaller.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o TauriInstaller/backend
-pushd RoseV/IDE
-python -m pip install -r requirements.txt
-popd
-pushd TauriInstaller
-npm install
-npm run build
-popd
-.\scripts\package-release.ps1 -Version v0.8.1-installer-fix
 ```
 
-Build outputs:
+`RoseMod.MelonLoader.csproj` and the IL2CPP shim need Unity/game interop assemblies. Pass `GameInteropPath` when the defaults do not exist:
 
-```text
-bin/Release/net6.0/MelonLoader.dll              # IL2CPP shim
-bin/Mono/Release/net6.0/MelonLoader.dll         # Mono shim
-bin/Native/Release/winhttp.dll                  # RoseMod C++ native bootstrap
-dist/installer/MelonCompatInstaller.exe         # CLI backend
-TauriInstaller/src-tauri/target/release/meloncompat-installer-tauri.exe  # Tauri GUI app
-dist/MelonCompat-RoseMod-<version>/MelonCompat Installer.exe             # packaged GUI
-dist/MelonCompat-RoseMod-<version>/backend/MelonCompatInstaller.exe      # packaged backend used by GUI
-bin/Release/netstandard2.0/RoseMod.Core.dll                   # RoseMod standalone core
-bin/RoseMod/MelonLoader/Release/netstandard2.0/MelonLoader.dll
-bin/RoseMod/BepInEx.*/*/netstandard2.0                        # RoseMod BepInEx facades
+```powershell
+dotnet build RoseMod.MelonLoader.csproj -c Release /p:GameInteropPath="D:\Games\Game\BepInEx\interop"
 ```
 
-Source layout:
+## Compatibility
 
-```text
-BepInExCompat/        Shared shim implementation
-MelonLoaderApi/       MelonLoader API facade types
-Installer/            CLI installer and install engine
-TauriInstaller/       Tauri GUI wrapper
-Native/               C++ RoseMod native bootstrap and WinHTTP proxy
-RoseMod/              Standalone RoseMod source
-RoseV/IDE/            Native PyQt RoseV editor and compiler workbench
-CompatVerifier/       Cecil-based facade coverage and required-member verifier
-```
+MelonCompat targets MelonLoader mods built for MelonLoader 0.5.7 through 0.7.3 and BepInEx 6 Mono or IL2CPP games. It is still a compatibility facade, not the full MelonLoader runtime.
 
-BepInEx packages are downloaded from BepInEx bleeding-edge builds for normal MelonCompat installs. RoseMod can also reuse that archive as a support source for CoreCLR and Il2CppInterop files without installing or requiring BepInEx at runtime.
+## Documentation
+
+The trimmed wiki source starts at [`docs/wiki/Home.md`](docs/wiki/Home.md).
