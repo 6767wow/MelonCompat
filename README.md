@@ -1,8 +1,8 @@
-# MelonCompat and RoseMod.DevKit
+# MelonCompat and RoseMod/RoseMod.DevKit
 
 MelonCompat is a C# compatibility shim for running supported MelonLoader mods under BepInEx 6.
 
-RoseMod.DevKit is the C# package for writing one shared Unity mod core and calling it from MelonLoader or BepInEx entrypoints. RoseMod is no longer a custom language, bundled sample mod, native bootstrap, or installer payload.
+RoseMod.DevKit is the C# package for writing a shared Unity mod core and calling it from MelonLoader or BepInEx entrypoints. RoseMod is no longer a custom language, bundled sample mod, native bootstrap, or installer payload.
 
 ## Projects
 
